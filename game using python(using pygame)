@@ -1,0 +1,79 @@
+import pygame
+import sys
+import random
+
+# Initialize pygame
+pygame.init()
+
+# Set up the screen
+WIDTH, HEIGHT = 800, 600
+screen = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Dodge the Obstacles")
+
+# Colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+
+# Player
+player_width, player_height = 50, 50
+player_x, player_y = WIDTH // 2 - player_width // 2, HEIGHT - player_height - 10
+player_speed = 5
+
+# Obstacles
+obstacle_width, obstacle_height = 50, 50
+obstacle_speed = 5
+obstacles = []
+
+# Game variables
+score = 0
+clock = pygame.time.Clock()
+game_over = False
+
+def draw_player(x, y):
+    pygame.draw.rect(screen, BLACK, (x, y, player_width, player_height))
+
+def draw_obstacles(obstacles):
+    for obstacle in obstacles:
+        pygame.draw.rect(screen, RED, obstacle)
+
+def move_obstacles(obstacles):
+    for obstacle in obstacles:
+        obstacle.move_ip(0, obstacle_speed)
+
+def check_collision(player, obstacles):
+    for obstacle in obstacles:
+        if player.colliderect(obstacle):
+            return True
+    return False
+
+while not game_over:
+    screen.fill(WHITE)
+
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_LEFT] and player_x > 0:
+        player_x -= player_speed
+    if keys[pygame.K_RIGHT] and player_x < WIDTH - player_width:
+        player_x += player_speed
+
+    if random.randint(0, 100) < 2:
+        obstacles.append(pygame.Rect(random.randint(0, WIDTH - obstacle_width), 0, obstacle_width, obstacle_height))
+
+    move_obstacles(obstacles)
+    draw_obstacles(obstacles)
+
+    player_rect = pygame.Rect(player_x, player_y, player_width, player_height)
+    draw_player(player_x, player_y)
+
+    if check_collision(player_rect, obstacles):
+        game_over = True
+
+    pygame.display.flip()
+    clock.tick(60)
+
+
